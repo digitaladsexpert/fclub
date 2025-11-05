@@ -23,24 +23,33 @@
 <script>
 (function(){
   const map = { telegram: "https://t.me/+XbmHOKju9uk2MGRl" };
+
   function logClick(params){
     try{
-      const url = '/.netlify/functions/logClick';
-      const payload = JSON.stringify({ts:Date.now(), params:params, ua:navigator.userAgent});
+      // Pages Functions: /functions/api/log-click.js => /api/log-click
+      const url = '/api/log-click';
+      const payload = JSON.stringify({
+        ts: Date.now(),
+        params,
+        ua: navigator.userAgent,
+      });
+
       if(navigator.sendBeacon){
-        navigator.sendBeacon(url, payload);
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon(url, blob);
       }else{
-        fetch(url, {method:'POST',headers:{'Content-Type':'application/json'},body:payload}).catch(()=>{});
+        fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: payload }).catch(()=>{});
       }
     }catch(e){}
   }
+
   const qs = new URLSearchParams(location.search);
   const to = qs.get('to') || 'telegram';
   const dest = map[to] || map['telegram'];
   const direct = document.getElementById('direct');
   direct.setAttribute('href', dest);
 
-  logClick({to:to, ref:document.referrer});
+  logClick({ to, ref: document.referrer });
   setTimeout(()=>{ window.location.replace(dest); }, 1200);
 })();
 </script>
